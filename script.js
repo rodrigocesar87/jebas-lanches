@@ -214,10 +214,11 @@ function sendOrder() {
     itemsText += `*CLIENTE:* ${name}\n`;
     itemsText += "----------------------------------------\n";
     itemsText += "*ITENS:*\n";
-        const item = cart[name];
+    for (let itemName in cart) {
+        const item = cart[itemName];
         const subtotal = item.qty * item.price;
         total += subtotal;
-        itemsText += `*${item.qty}x* ${name.padEnd(20)} R$ ${subtotal.toFixed(2)}\n`;
+        itemsText += `*${item.qty}x* ${itemName.padEnd(20)} R$ ${subtotal.toFixed(2)}\n`;
     }
     
     itemsText += "----------------------------------------\n";
