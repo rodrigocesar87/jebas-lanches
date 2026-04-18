@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jêbas Lanches - Menu Online</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header class="hero" style="background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.8)), url('jebas_lanches_hero_1776474119616.png');">
+        <div class="header-content">
+            <h1>JÊBAS LANCHES</h1>
+            <p>O sabor que você respeita, na porta da sua casa.</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <nav class="categories-nav" id="categories-nav">
+            <!-- Categorias serão inseridas via JS -->
+        </nav>
+
+        <section id="menu-container">
+            <!-- Itens do menu serão inseridos via JS -->
+        </section>
+
+        <section id="checkout-section">
+            <div class="checkout-card">
+                <h2><i class="fas fa-truck"></i> Finalizar Pedido</h2>
+                
+                <div class="form-group">
+                    <label for="address">Endereço de Entrega</label>
+                    <input type="text" id="address" placeholder="Rua, número, bairro e referência" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="observations">Observações</label>
+                    <textarea id="observations" rows="3" placeholder="Ex: Sem cebola, ponto da carne, etc."></textarea>
+                </div>
+
+                <div class="cart-summary">
+                    <div class="total-row">
+                        <span>Total do Pedido:</span>
+                        <span id="total-price">R$ 0,00</span>
+                    </div>
+                    <button id="btn-send" class="btn-primary">
+                        <i class="fab fa-whatsapp"></i> Enviar para o Jêbas
+                    </button>
+                    <p class="print-note"><i class="fas fa-info-circle"></i> O pedido será formatado para produção imediata.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2026 Jêbas Lanches. Todos os direitos reservados.</p>
+    </footer>
+
+    <!-- Floating Cart Bar for Mobile -->
+    <div id="mobile-cart-bar" class="mobile-cart-bar hidden">
+        <div class="cart-info">
+            <span id="mobile-cart-count">0 itens</span>
+            <span id="mobile-cart-total">R$ 0,00</span>
+        </div>
+        <button onclick="document.getElementById('checkout-section').scrollIntoView({behavior: 'smooth'})">Ver Pedido</button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
