@@ -184,11 +184,18 @@ function setupCartLogic() {
 }
 
 function sendOrder() {
+    const name = document.getElementById('client-name').value.trim();
     const address = document.getElementById('address').value.trim();
     const observations = document.getElementById('observations').value.trim();
 
     if (Object.keys(cart).length === 0) {
         alert("Ops! Seu carrinho está vazio. Selecione pelo menos um item.");
+        return;
+    }
+
+    if (!name) {
+        alert("Por favor, informe seu nome.");
+        document.getElementById('client-name').focus();
         return;
     }
 
@@ -204,8 +211,9 @@ function sendOrder() {
     // Formatting for production (receipt style)
     itemsText += "🛒 *NOVO PEDIDO - JÊBAS LANCHES*\n";
     itemsText += "----------------------------------------\n";
-    
-    for (let name in cart) {
+    itemsText += `*CLIENTE:* ${name}\n`;
+    itemsText += "----------------------------------------\n";
+    itemsText += "*ITENS:*\n";
         const item = cart[name];
         const subtotal = item.qty * item.price;
         total += subtotal;
