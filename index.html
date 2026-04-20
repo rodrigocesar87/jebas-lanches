@@ -15,6 +15,9 @@
         <div class="header-content">
             <h1>JÊBAS LANCHES</h1>
             <p>O sabor que você respeita, na porta da sua casa.</p>
+            <button id="btn-help" class="btn-help" title="Como fazer meu pedido?">
+                <i class="fas fa-question-circle"></i> Como pedir?
+            </button>
         </div>
     </header>
 
@@ -27,9 +30,72 @@
             <!-- Itens do menu serão inseridos via JS -->
         </section>
 
+        <section id="comanda-section" class="comanda-container hidden">
+            <h2 class="section-title"><i class="fas fa-clipboard-list"></i> Sua Comanda</h2>
+            <div id="comanda-items">
+                <!-- Itens personalizáveis serão inseridos aqui via JS -->
+            </div>
+        </section>
+
         <section id="checkout-section">
             <div class="checkout-card">
-                <h2><i class="fas fa-truck"></i> Finalizar Pedido</h2>
+                <h2>2. Forma de Pagamento</h2>
+                
+
+                <div class="form-group">
+                    <label>Forma de Pagamento</label>
+                    <div class="payment-methods">
+                        <label class="payment-option">
+                            <input type="radio" name="payment" value="pix" checked>
+                            <span><i class="fab fa-pix"></i> PIX</span>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="payment" value="card">
+                            <span><i class="fas fa-credit-card"></i> Cartão</span>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="payment" value="cash">
+                            <span><i class="fas fa-money-bill-wave"></i> Dinheiro</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Detalhes do Dinheiro -->
+                <div id="change-container" class="change-container hidden">
+                    <label for="change">Troco para quanto?</label>
+                    <input type="number" id="change" placeholder="Ex: 50.00">
+                </div>
+
+                <!-- Detalhes do Cartão -->
+                <div id="card-container" class="payment-details-container hidden">
+                    <label>Tipo de Cartão:</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="card-type" value="Crédito" checked> Crédito
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="card-type" value="Débito"> Débito
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Detalhes do PIX -->
+                <div id="pix-container" class="payment-details-container hidden">
+                    <div class="pix-info">
+                        <p><strong>Chave PIX:</strong> <span id="pix-key-display">jebas.burguer@contato.com</span></p>
+                        <div class="pix-qr-area">
+                            <img id="pix-qr-code" src="" alt="QR Code PIX">
+                        </div>
+                        <div class="pix-copy-area">
+                            <input type="text" id="pix-copy-paste" readonly>
+                            <button type="button" onclick="copyPixCode()" id="btn-copy-pix">Copiar Código</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="checkout-card" style="margin-top: 30px;">
+                <h2>3. Informações de Entrega</h2>
                 
                 <div class="form-group">
                     <label for="client-name">Seu Nome</label>
@@ -42,8 +108,8 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="observations">Observações</label>
-                    <textarea id="observations" rows="3" placeholder="Ex: Sem cebola, ponto da carne, etc."></textarea>
+                    <label for="observations">Observações de Entrega</label>
+                    <textarea id="observations" rows="2" placeholder="Ex: Portão azul, campainha estragada, etc."></textarea>
                 </div>
 
                 <div class="cart-summary">
@@ -70,7 +136,49 @@
             <span id="mobile-cart-count">0 itens</span>
             <span id="mobile-cart-total">R$ 0,00</span>
         </div>
-        <button onclick="document.getElementById('checkout-section').scrollIntoView({behavior: 'smooth'})">Ver Pedido</button>
+        <button onclick="document.getElementById('comanda-section').scrollIntoView({behavior: 'smooth'})">Ver Pedido</button>
+    </div>
+
+    <!-- Modal Guia de Pedido -->
+    <div id="guide-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeGuide()">&times;</button>
+            <h2 class="guide-title">Bem-vindo ao Jêbas Lanches! 🍔</h2>
+            <p>Veja como é fácil fazer seu pedido:</p>
+            
+            <div class="guide-steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-info">
+                        <h3>Escolha seu Lanche</h3>
+                        <p>Navegue pelo cardápio e adicione o que desejar.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-info">
+                        <h3>Personalize na Comanda</h3>
+                        <p>Ao clicar em "Ver Pedido", você pode adicionar extras e deixar observações.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-info">
+                        <h3>Dados de Entrega</h3>
+                        <p>Preencha seu endereço e escolha a forma de pagamento.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-info">
+                        <h3>Envie para o WhatsApp</h3>
+                        <p>Pronto! Nós receberemos seu pedido na hora.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="btn-primary" onclick="closeGuide()">Entendi, vamos lá!</button>
+        </div>
     </div>
 
     <script src="script.js"></script>
