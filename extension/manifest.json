@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "Jebas Print - Impressão de Pedidos",
+  "version": "1.0",
+  "description": "Detecção e impressão térmica de pedidos para o Jebas Burguer no WhatsApp Web.",
+  "permissions": ["activeTab", "scripting", "storage"],
+  "host_permissions": ["https://web.whatsapp.com/*"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Jebas Print Status"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://web.whatsapp.com/*",
+        "*://*.whatsapp.com/*"
+      ],
+      "js": ["content.js"],
+      "css": ["extension_styles.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["thermal_print.css"],
+      "matches": ["https://web.whatsapp.com/*"]
+    }
+  ]
+}

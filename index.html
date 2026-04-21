@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,123 +8,141 @@
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Oswald:wght@500;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
+
 <body>
-    <header class="hero" style="background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.8)), url('jebas_lanches_hero_1776474119616.png');">
-        <div class="header-content">
-            <h1>JÊBAS LANCHES</h1>
-            <p>O sabor que você respeita, na porta da sua casa.</p>
-            <button id="btn-help" class="btn-help" title="Como fazer meu pedido?">
-                <i class="fas fa-question-circle"></i> Como pedir?
-            </button>
+    <header class="hero" style="background-image: url('images/crie_um_fundo,_202604211823.jpeg');">
+
+
+        <!-- Novo: Barra de Busca -->
+        <div class="search-container">
+            <input type="text" id="menu-search" placeholder="Buscar no cardápio... 🔍">
         </div>
+
     </header>
 
-    <main class="container">
-        <nav class="categories-nav" id="categories-nav">
-            <!-- Categorias serão inseridas via JS -->
-        </nav>
+    <!-- Atalhos de Categoria Dinâmicos -->
+    <nav id="category-nav" class="category-nav">
+        <!-- Injetado via JS -->
+    </nav>
 
-        <section id="menu-container">
-            <!-- Itens do menu serão inseridos via JS -->
-        </section>
 
-        <section id="comanda-section" class="comanda-container hidden">
-            <h2 class="section-title"><i class="fas fa-clipboard-list"></i> Sua Comanda</h2>
-            <div id="comanda-items">
-                <!-- Itens personalizáveis serão inseridos aqui via JS -->
-            </div>
-        </section>
+    <main class="main-layout">
 
-        <section id="checkout-section">
-            <div class="checkout-card">
-                <h2>2. Forma de Pagamento</h2>
-                
+        <div class="menu-column">
+            <nav class="categories-nav" id="categories-nav">
+                <!-- Categorias serão inseridas via JS -->
+            </nav>
 
-                <div class="form-group">
-                    <label>Forma de Pagamento</label>
-                    <div class="payment-methods">
-                        <label class="payment-option">
-                            <input type="radio" name="payment" value="pix" checked>
-                            <span><i class="fab fa-pix"></i> PIX</span>
-                        </label>
-                        <label class="payment-option">
-                            <input type="radio" name="payment" value="card">
-                            <span><i class="fas fa-credit-card"></i> Cartão</span>
-                        </label>
-                        <label class="payment-option">
-                            <input type="radio" name="payment" value="cash">
-                            <span><i class="fas fa-money-bill-wave"></i> Dinheiro</span>
-                        </label>
+            <section id="menu-container">
+                <!-- Itens do menu serão inseridos via JS -->
+            </section>
+        </div>
+
+        <aside class="sidebar-column">
+            <div class="checkout-sticky">
+                <section id="comanda-section" class="checkout-card hidden">
+                    <h2 class="section-title"
+                        style="margin-top: 0; font-size: 1.5rem; border-bottom: none; padding-bottom: 0;">
+                        <i class="fas fa-shopping-basket"></i> Sua Comanda
+                    </h2>
+                    <div id="comanda-items">
+                        <!-- Itens personalizáveis serão inseridos aqui via JS -->
                     </div>
-                </div>
+                </section>
 
-                <!-- Detalhes do Dinheiro -->
-                <div id="change-container" class="change-container hidden">
-                    <label for="change">Troco para quanto?</label>
-                    <input type="number" id="change" placeholder="Ex: 50.00">
-                </div>
+                <section id="checkout-section">
+                    <div class="checkout-card">
+                        <h2><i class="fas fa-credit-card"></i> Pagamento</h2>
 
-                <!-- Detalhes do Cartão -->
-                <div id="card-container" class="payment-details-container hidden">
-                    <label>Tipo de Cartão:</label>
-                    <div class="radio-group">
-                        <label class="radio-label">
-                            <input type="radio" name="card-type" value="Crédito" checked> Crédito
-                        </label>
-                        <label class="radio-label">
-                            <input type="radio" name="card-type" value="Débito"> Débito
-                        </label>
-                    </div>
-                </div>
-
-                <!-- Detalhes do PIX -->
-                <div id="pix-container" class="payment-details-container hidden">
-                    <div class="pix-info">
-                        <p><strong>Chave PIX:</strong> <span id="pix-key-display">jebas.burguer@contato.com</span></p>
-                        <div class="pix-qr-area">
-                            <img id="pix-qr-code" src="" alt="QR Code PIX">
+                        <div class="form-group">
+                            <label>Escolha como pagar:</label>
+                            <div class="payment-methods">
+                                <label class="payment-option">
+                                    <input type="radio" name="payment" value="pix" checked>
+                                    <span><i class="fab fa-pix"></i> PIX</span>
+                                </label>
+                                <label class="payment-option">
+                                    <input type="radio" name="payment" value="card">
+                                    <span><i class="fas fa-credit-card"></i> Cartão</span>
+                                </label>
+                                <label class="payment-option">
+                                    <input type="radio" name="payment" value="cash">
+                                    <span><i class="fas fa-money-bill-wave"></i> Dinheiro</span>
+                                </label>
+                            </div>
                         </div>
-                        <div class="pix-copy-area">
-                            <input type="text" id="pix-copy-paste" readonly>
-                            <button type="button" onclick="copyPixCode()" id="btn-copy-pix">Copiar Código</button>
+
+                        <!-- Detalhes do Dinheiro -->
+                        <div id="change-container" class="change-container hidden">
+                            <label for="change">Troco para quanto?</label>
+                            <input type="number" id="change" placeholder="Ex: 50.00">
+                        </div>
+
+                        <!-- Detalhes do Cartão -->
+                        <div id="card-container" class="payment-details-container hidden">
+                            <label>Tipo de Cartão:</label>
+                            <div class="radio-group">
+                                <label class="radio-label">
+                                    <input type="radio" name="card-type" value="Crédito" checked> Crédito
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="card-type" value="Débito"> Débito
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Detalhes do PIX -->
+                        <div id="pix-container" class="payment-details-container hidden">
+                            <div class="pix-info">
+                                <p><strong>Chave PIX:</strong> <span
+                                        id="pix-key-display">jebas.burguer@contato.com</span></p>
+                                <div class="pix-copy-area">
+                                    <input type="text" id="pix-copy-paste" readonly>
+                                    <button type="button" onclick="copyPixCode()" id="btn-copy-pix">Copiar
+                                        Código</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
 
-            <div class="checkout-card" style="margin-top: 30px;">
-                <h2>3. Informações de Entrega</h2>
-                
-                <div class="form-group">
-                    <label for="client-name">Seu Nome</label>
-                    <input type="text" id="client-name" placeholder="Como podemos te chamar?" required>
-                </div>
+                    <div class="checkout-card">
+                        <h2><i class="fas fa-truck"></i> Entrega</h2>
 
-                <div class="form-group">
-                    <label for="address">Endereço de Entrega</label>
-                    <input type="text" id="address" placeholder="Rua, número, bairro e referência" required>
-                </div>
+                        <div class="form-group">
+                            <label for="client-name">Seu Nome</label>
+                            <input type="text" id="client-name" placeholder="Como podemos te chamar?" required>
+                        </div>
 
-                <div class="form-group">
-                    <label for="observations">Observações de Entrega</label>
-                    <textarea id="observations" rows="2" placeholder="Ex: Portão azul, campainha estragada, etc."></textarea>
-                </div>
+                        <div class="form-group">
+                            <label for="address">Endereço de Entrega</label>
+                            <input type="text" id="address" placeholder="Rua, número, bairro..." required>
+                        </div>
 
-                <div class="cart-summary">
-                    <div class="total-row">
-                        <span>Total do Pedido:</span>
-                        <span id="total-price">R$ 0,00</span>
+                        <div class="form-group">
+                            <label for="observations">Observações</label>
+                            <textarea id="observations" rows="2"
+                                placeholder="Ex: Portão azul, campainha estragada..."></textarea>
+                        </div>
+
+                        <div class="cart-summary">
+                            <div class="total-row">
+                                <span>Total:</span>
+                                <span id="total-price">R$ 0,00</span>
+                            </div>
+                            <button id="btn-send" class="btn-primary">
+                                <i class="fab fa-whatsapp"></i> Finalizar Pedido
+                            </button>
+                            <p class="print-note"><i class="fas fa-lock"></i> Pedido 100% seguro via WhatsApp.</p>
+                        </div>
                     </div>
-                    <button id="btn-send" class="btn-primary">
-                        <i class="fab fa-whatsapp"></i> Enviar para o Jêbas
-                    </button>
-                    <p class="print-note"><i class="fas fa-info-circle"></i> O pedido será formatado para produção imediata.</p>
-                </div>
+                </section>
             </div>
-        </section>
+        </aside>
     </main>
 
     <footer class="footer">
@@ -136,7 +155,8 @@
             <span id="mobile-cart-count">0 itens</span>
             <span id="mobile-cart-total">R$ 0,00</span>
         </div>
-        <button onclick="document.getElementById('comanda-section').scrollIntoView({behavior: 'smooth'})">Ver Pedido</button>
+        <button onclick="document.getElementById('comanda-section').scrollIntoView({behavior: 'smooth'})">Ver
+            Pedido</button>
     </div>
 
     <!-- Modal Guia de Pedido -->
@@ -145,7 +165,7 @@
             <button class="modal-close" onclick="closeGuide()">&times;</button>
             <h2 class="guide-title">Bem-vindo ao Jêbas Lanches! 🍔</h2>
             <p>Veja como é fácil fazer seu pedido:</p>
-            
+
             <div class="guide-steps">
                 <div class="step">
                     <div class="step-number">1</div>
@@ -176,11 +196,30 @@
                     </div>
                 </div>
             </div>
-            
+
             <button class="btn-primary" onclick="closeGuide()">Entendi, vamos lá!</button>
+        </div>
+    </div>
+
+    <!-- Modal de Detalhes do Produto (Novo) -->
+    <div id="product-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div id="modal-body">
+                <!-- Conteúdo injetado via JS -->
+            </div>
+            <div class="modal-footer">
+                <div class="quantity-control-modal">
+                    <button class="qty-btn" onclick="adjustModalQty(-1)">-</button>
+                    <span id="modal-qty">1</span>
+                    <button class="qty-btn" onclick="adjustModalQty(1)">+</button>
+                </div>
+                <button id="add-to-cart-modal">Adicionar à Comanda</button>
+            </div>
         </div>
     </div>
 
     <script src="script.js"></script>
 </body>
+
 </html>

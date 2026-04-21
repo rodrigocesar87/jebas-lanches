@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jêbas Lanches - Cardápio</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f7f4ef;
+}
+
+header {
+    background: #d62828;
+    color: white;
+    padding: 20px;
+    text-align: center;
+}
+
+h1 {
+    margin: 0;
+}
+
+.search-box {
+    margin-top: 10px;
+}
+
+input[type="text"] {
+    padding: 10px;
+    width: 300px;
+    max-width: 90%;
+    border-radius: 8px;
+    border: none;
+}
+
+.container {
+    display: flex;
+}
+
+.menu {
+    flex: 3;
+    padding: 20px;
+}
+
+.cart {
+    flex: 1;
+    background: white;
+    padding: 20px;
+    border-left: 2px solid #ddd;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+.categories {
+    margin-bottom: 20px;
+}
+
+button.category-btn {
+    margin: 5px;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px;
+    background: #d62828;
+    color: white;
+    cursor: pointer;
+}
+
+button.category-btn:hover {
+    background: #a61c1c;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 15px;
+}
+
+.card {
+    background: white;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.price {
+    font-weight: bold;
+    color: #d62828;
+    font-size: 18px;
+}
+
+button.add-btn {
+    margin-top: 10px;
+    width: 100%;
+    padding: 8px;
+    border: none;
+    border-radius: 8px;
+    background: #2a9d8f;
+    color: white;
+    cursor: pointer;
+}
+
+button.add-btn:hover {
+    background: #1f776c;
+}
+
+.cart-item {
+    border-bottom: 1px solid #ddd;
+    padding: 10px 0;
+}
+
+.total {
+    font-size: 20px;
+    font-weight: bold;
+    margin-top: 20px;
+}
+
+.remove-btn {
+    background: #d62828;
+    color: white;
+    border: none;
+    padding: 5px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+    }
+
+    .cart {
+        height: auto;
+        position: relative;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>🍔 JÊBAS LANCHES</h1>
+<p>Cardápio Digital</p>
+
+<div class="search-box">
+<input type="text" id="search" placeholder="Pesquisar item...">
+</div>
+</header>
+
+<div class="container">
+
+<div class="menu">
+
+<div class="categories">
+<button class="category-btn" onclick="filterCategory('Todos')">Todos</button>
+<button class="category-btn" onclick="filterCategory('Lanches')">Lanches</button>
+<button class="category-btn" onclick="filterCategory('Adicionais')">Adicionais</button>
+<button class="category-btn" onclick="filterCategory('Batata')">Batata</button>
+<button class="category-btn" onclick="filterCategory('Sucos')">Sucos</button>
+<button class="category-btn" onclick="filterCategory('Refrigerantes')">Refrigerantes</button>
+<button class="category-btn" onclick="filterCategory('Combos')">Combos</button>
+</div>
+
+<div class="grid" id="menuGrid"></div>
+
+</div>
+
+<div class="cart">
+<h2>🛒 Carrinho</h2>
+<div id="cartItems"></div>
+<div class="total" id="total">Total: R$ 0</div>
+</div>
+
+</div>
+
+<script>
+
+const items = [
+
+{ name: "Misto quente", category: "Lanches", price: 8 },
+{ name: "X-Bauru", category: "Lanches", price: 9 },
+{ name: "X-Americano", category: "Lanches", price: 10 },
+{ name: "X-Burguer", category: "Lanches", price: 12 },
+{ name: "Cachorro quente na chapa", category: "Lanches", price: 13 },
+{ name: "X-Frango", category: "Lanches", price: 14 },
+{ name: "X-Bagunça", category: "Lanches", price: 18 },
+{ name: "X-Calabresa", category: "Lanches", price: 16 },
+{ name: "X-Duplo", category: "Lanches", price: 18 },
+{ name: "X-Tudo", category: "Lanches", price: 20 },
+{ name: "X-Vegetariano", category: "Lanches", price: 12 },
+{ name: "X-Salada", category: "Lanches", price: 14 },
+{ name: "X-Bacon", category: "Lanches", price: 16 },
+{ name: "X-Tropical", category: "Lanches", price: 20 },
+
+{ name: "Carne", category: "Adicionais", price: 7 },
+{ name: "Frango", category: "Adicionais", price: 6 },
+{ name: "Bacon", category: "Adicionais", price: 6 },
+{ name: "Calabresa", category: "Adicionais", price: 6 },
+{ name: "Salsicha", category: "Adicionais", price: 3 },
+{ name: "Ovo", category: "Adicionais", price: 3 },
+{ name: "Queijo", category: "Adicionais", price: 3 },
+{ name: "Presunto", category: "Adicionais", price: 3 },
+{ name: "Banana", category: "Adicionais", price: 3 },
+{ name: "Catupiry", category: "Adicionais", price: 3 },
+{ name: "Pão", category: "Adicionais", price: 3 },
+
+{ name: "Batata P", category: "Batata", price: 10 },
+{ name: "Batata M", category: "Batata", price: 15 },
+{ name: "Batata G", category: "Batata", price: 20 },
+{ name: "Batata Especial", category: "Batata", price: 25 },
+
+{ name: "Suco Goiaba", category: "Sucos", price: 8 },
+{ name: "Suco Acerola", category: "Sucos", price: 8 },
+{ name: "Suco Maracujá", category: "Sucos", price: 8 },
+{ name: "Suco Cupuaçu", category: "Sucos", price: 8 },
+
+{ name: "Refrigerante Lata", category: "Refrigerantes", price: 5 },
+{ name: "Refrigerante 1L", category: "Refrigerantes", price: 8 },
+{ name: "Refrigerante 2L", category: "Refrigerantes", price: 10 },
+
+{ name: "Combo 4 X-Salada", category: "Combos", price: 70 },
+{ name: "Combo 4 X-Tudo", category: "Combos", price: 90 },
+{ name: "Combo 2 X-Salada", category: "Combos", price: 35 },
+{ name: "Combo 2 X-Tudo", category: "Combos", price: 50 },
+{ name: "Combo 1 X-Salada", category: "Combos", price: 20 },
+{ name: "Combo 1 X-Tudo", category: "Combos", price: 30 }
+
+];
+
+let cart = [];
+
+function renderItems(list) {
+    const grid = document.getElementById("menuGrid");
+    grid.innerHTML = "";
+
+    list.forEach(item => {
+        const card = document.createElement("div");
+        card.className = "card";
+
+        card.innerHTML = `
+            <h3>${item.name}</h3>
+            <div class="price">R$ ${item.price}</div>
+            <button class="add-btn" onclick="addToCart('${item.name}', ${item.price})">Adicionar</button>
+        `;
+
+        grid.appendChild(card);
+    });
+}
+
+function filterCategory(category) {
+    if (category === "Todos") {
+        renderItems(items);
+        return;
+    }
+
+    const filtered = items.filter(item => item.category === category);
+    renderItems(filtered);
+}
+
+function addToCart(name, price) {
+    cart.push({ name, price });
+    renderCart();
+}
+
+function removeFromCart(index) {
+    cart.splice(index, 1);
+    renderCart();
+}
+
+function renderCart() {
+    const cartDiv = document.getElementById("cartItems");
+    cartDiv.innerHTML = "";
+
+    let total = 0;
+
+    cart.forEach((item, index) => {
+        total += item.price;
+
+        const div = document.createElement("div");
+        div.className = "cart-item";
+
+        div.innerHTML = `
+            ${item.name} - R$ ${item.price}
+            <button class="remove-btn" onclick="removeFromCart(${index})">X</button>
+        `;
+
+        cartDiv.appendChild(div);
+    });
+
+    document.getElementById("total").innerText = "Total: R$ " + total;
+}
+
+// Busca
+
+document.getElementById("search").addEventListener("input", function() {
+    const term = this.value.toLowerCase();
+
+    const filtered = items.filter(item =>
+        item.name.toLowerCase().includes(term)
+    );
+
+    renderItems(filtered);
+});
+
+renderItems(items);
+
+</script>
+
+</body>
+</html>

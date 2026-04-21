@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Imprimir Pedido - Jêbas Burguer</title>
+    <style>
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .receipt {
+            background-color: white;
+            width: 300px; /* Aproximadamente 80mm */
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            color: black;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 1px dashed #000;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+
+        .header h1 {
+            font-size: 18px;
+            margin: 0;
+            text-transform: uppercase;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .divider {
+            border-bottom: 1px dashed #000;
+            margin: 10px 0;
+        }
+
+        .item {
+            margin-bottom: 10px;
+        }
+
+        .item-header {
+            font-weight: bold;
+        }
+
+        .item-details {
+            font-size: 12px;
+            padding-left: 10px;
+        }
+
+        .total-section {
+            font-weight: bold;
+            font-size: 16px;
+            border-top: 1px solid #000;
+            padding-top: 10px;
+            margin-top: 10px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px;
+        }
+
+        .no-print {
+            margin-top: 20px;
+        }
+
+        .btn-print {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        @media print {
+            .no-print {
+                display: none;
+            }
+            body {
+                background: white;
+                padding: 0;
+            }
+            .receipt {
+                box-shadow: none;
+                width: 100%;
+                padding: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="receipt" id="receipt">
+        <div class="header">
+            <h1>Jêbas Burguer</h1>
+            <p>Menu Online - Pedido</p>
+        </div>
+
+        <div id="order-info">
+            <div class="info-row">
+                <span>Data:</span>
+                <span id="date">--/--/----</span>
+            </div>
+            <div class="info-row">
+                <span>Cliente:</span>
+                <span id="client-name">---</span>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div id="items-list">
+            <!-- Itens serão injetados aqui -->
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="info-row total-section">
+            <span>TOTAL:</span>
+            <span id="total-price">R$ 0,00</span>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="payment-section">
+            <p><strong>Pagamento:</strong> <span id="payment-method">---</span></p>
+            <p><strong>Entrega:</strong> <span id="delivery-address">---</span></p>
+            <div id="delivery-obs-container">
+                <strong>Obs Entrega:</strong> <span id="delivery-obs">---</span>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Obrigado pela preferência!</p>
+            <p>Pedido via WhatsApp</p>
+        </div>
+    </div>
+
+    <div class="no-print">
+        <button class="btn-print" onclick="window.print()">🖨️ IMPRIMIR COMANDA</button>
+    </div>
+
+    <script>
+        function decodeOrder() {
+            const params = new URLSearchParams(window.location.search);
+            const data = params.get('p');
+
+            if (!data) {
+                document.getElementById('receipt').innerHTML = "<h1>Pedido não encontrado.</h1>";
+                return;
+            }
+
+            try {
+                // Decodificar Base64 (UTF-8 safe)
+                const decodedData = decodeURIComponent(atob(data).split('').map(function(c) {
+                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                }).join(''));
+                
+                const order = JSON.parse(decodedData);
+
+                // Preencher dados
+                document.getElementById('date').textContent = new Date().toLocaleDateString('pt-BR') + " " + new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
+                document.getElementById('client-name').textContent = order.client;
+                document.getElementById('total-price').textContent = order.total;
+                document.getElementById('payment-method').textContent = order.payment;
+                document.getElementById('delivery-address').textContent = order.address;
+                
+                if (order.deliveryObs) {
+                    document.getElementById('delivery-obs').textContent = order.deliveryObs;
+                } else {
+                    document.getElementById('delivery-obs-container').style.display = 'none';
+                }
+
+                const itemsList = document.getElementById('items-list');
+                itemsList.innerHTML = '';
+
+                order.items.forEach((item, index) => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'item';
+                    
+                    let html = `
+                        <div class="info-row item-header">
+                            <span>${item.qty}x ${item.name}</span>
+                            <span>${item.subtotal}</span>
+                        </div>
+                    `;
+
+                    if (item.addons && item.addons.length > 0) {
+                        html += `<div class="item-details">Adicionais: ${item.addons.join(', ')}</div>`;
+                    }
+
+                    if (item.obs) {
+                        html += `<div class="item-details">Obs: ${item.obs}</div>`;
+                    }
+
+                    itemDiv.innerHTML = html;
+                    itemsList.appendChild(itemDiv);
+                });
+
+            } catch (e) {
+                console.error(e);
+                document.getElementById('receipt').innerHTML = "<h1>Erro ao carregar o pedido.</h1>";
+            }
+        }
+
+        window.onload = decodeOrder;
+    </script>
+</body>
+</html>

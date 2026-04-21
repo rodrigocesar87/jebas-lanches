@@ -16,145 +16,160 @@
 <body>
     <div class="header-top"></div>
 
-    <header class="hero">
-        <div class="logo-container">
-            <img src="logoSaas.png" alt="Jêbas Burguer Logo">
+    <header class="premium-hero">
+        <div class="glass-header">
+            <img src="logo.png" alt="Logo" class="premium-logo">
+            <h1>Jêbas Burguer</h1>
+            <p class="premium-tagline">A experiência definitiva em sabor</p>
+            
+            <div class="search-container-premium">
+                <input type="text" id="menu-search" placeholder="Qual sua vontade hoje? 🍔">
+            </div>
+
+            <nav id="category-nav-premium" class="category-nav-premium">
+                <!-- Injetado via JS -->
+            </nav>
         </div>
-        <h1 class="fast-food-font">MENU</h1>
-        <p>O hambúrguer que você respeita, com a tecnologia que você merece.</p>
     </header>
 
-    <main class="container">
-        <div class="toolbar">
-            <div class="search-box">
-                <i class="fas fa-search"></i>
-                <input type="text" id="search-input" placeholder="Buscar no cardápio...">
-            </div>
-            
-            <button id="theme-toggle" class="theme-toggle" title="Alternar modo claro/escuro">
-                <i class="fas fa-moon"></i>
-            </button>
-
-            <button id="btn-help-premium" class="theme-toggle" title="Como pedir?">
-                <i class="fas fa-question-circle"></i>
-            </button>
-        </div>
-
-        <div class="categories">
-            <div class="category-pill active">All</div>
-            <div class="category-pill">Lanches</div>
-            <div class="category-pill">Adicionais</div>
-            <div class="category-pill">Porção batata</div>
-            <div class="category-pill">Bebidas</div>
-            <div class="category-pill">Combos</div>
-        </div>
-
-        <div class="menu-grid" id="menu-container">
-            <div class="section-column" id="left-column">
-                <!-- Conteúdo inserido via JS -->
-            </div>
-            <div class="section-column" id="right-column">
-                <!-- Conteúdo inserido via JS -->
-            </div>
-        </div>
-
-        <!-- Comanda Section Premium -->
-        <section id="comanda-section-premium" class="comanda-premium hidden">
-            <h2 class="fast-food-font">Sua Comanda</h2>
-            <div id="comanda-items-premium">
-                <!-- Itens inseridos via JS -->
-            </div>
-        </section>
-
-        <!-- Checkout Section Premium -->
-        <section id="checkout-section-premium" class="checkout-premium">
-            <!-- ETAPA 2: PAGAMENTO -->
-            <div class="comanda-card-premium">
-                <h3 class="fast-food-font" style="color: var(--primary); font-size: 1.8rem; margin-bottom: 20px;">2. Pagamento</h3>
+    <main class="main-layout">
+        <div class="menu-column">
+            <div class="toolbar">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="search-input" placeholder="Buscar no cardápio...">
+                </div>
                 
-                <div class="form-field">
-                    <label>Como deseja pagar?</label>
-                    <div class="payment-methods-premium">
-                        <label class="payment-opt-premium">
-                            <input type="radio" name="payment" value="pix" checked>
-                            <span><i class="fab fa-pix"></i> PIX</span>
-                        </label>
-                        <label class="payment-opt-premium">
-                            <input type="radio" name="payment" value="card">
-                            <span><i class="fas fa-credit-card"></i> Cartão</span>
-                        </label>
-                        <label class="payment-opt-premium">
-                            <input type="radio" name="payment" value="cash">
-                            <span><i class="fas fa-money-bill-wave"></i> Dinheiro</span>
-                        </label>
-                    </div>
-                </div>
+                <button id="theme-toggle" class="theme-toggle" title="Alternar modo claro/escuro">
+                    <i class="fas fa-moon"></i>
+                </button>
 
-                <!-- Detalhes do Cartão Premium -->
-                <div id="card-container-premium" class="payment-details-premium hidden">
-                    <p style="font-weight: 700; margin-bottom: 10px;">Modalidade:</p>
-                    <div class="radio-group-premium">
-                        <label class="radio-label-premium">
-                            <input type="radio" name="card-type-premium" value="Crédito" checked>
-                            <span>Crédito</span>
-                        </label>
-                        <label class="radio-label-premium">
-                            <input type="radio" name="card-type-premium" value="Débito">
-                            <span>Débito</span>
-                        </label>
-                    </div>
-                </div>
-
-                <!-- Detalhes do PIX Premium -->
-                <div id="pix-container-premium" class="payment-details-premium hidden">
-                    <div class="pix-card-premium">
-                        <p style="font-size: 0.8rem; opacity: 0.7;">CHAVE PIX (CNPJ)</p>
-                        <p style="font-weight: 800; font-size: 1.1rem; margin-bottom: 15px;">jebas.burguer@contato.com</p>
-                        
-                        <div style="background: white; padding: 10px; display: inline-block; border-radius: 15px; margin-bottom: 15px;">
-                            <img id="pix-qr-code-premium" src="" alt="QR Code PIX" style="width: 140px; height: 140px; display: block;">
-                        </div>
-
-                        <div style="display: flex; gap: 10px;">
-                            <input type="text" id="pix-copy-paste-premium" readonly style="flex: 1; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); color: var(--primary); padding: 10px; border-radius: 8px; font-family: monospace; font-size: 0.8rem;">
-                            <button type="button" onclick="copyPixCodePremium()" id="btn-copy-pix-premium" class="btn-send-premium" style="padding: 0 15px; font-size: 0.8rem;">COPIAR</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="change-group-premium" class="form-field hidden">
-                    <label for="change-amount">Troco para quanto?</label>
-                    <input type="text" id="change-amount" placeholder="Ex: R$ 50,00" class="input-premium">
-                </div>
-            </div>
-
-            <!-- ETAPA 3: ENTREGA -->
-            <div class="comanda-card-premium" style="margin-top: 30px;">
-                <h3 class="fast-food-font" style="color: var(--primary); font-size: 1.8rem; margin-bottom: 20px;">3. Dados de Entrega</h3>
-                
-                <div class="form-field">
-                    <label for="client-name">Qual seu nome?</label>
-                    <input type="text" id="client-name" placeholder="Ex: Rodrigo" required class="input-premium">
-                </div>
-
-                <div class="form-field">
-                    <label for="address">Onde entregamos?</label>
-                    <input type="text" id="address" placeholder="Rua, número, bairro e referência" required class="input-premium">
-                </div>
-
-                <div class="form-field">
-                    <label for="observations">Observações de Entrega</label>
-                    <textarea id="observations" rows="2" placeholder="Ex: Portão azul, campainha estragada, etc." class="input-premium"></textarea>
-                </div>
-            </div>
-
-            <div class="summary-premium">
-                <div class="total-premium">Total: <span id="total-price-premium">R$ 0,00</span></div>
-                <button id="btn-send-premium" class="btn-send-premium" onclick="sendOrder()">
-                    <i class="fab fa-whatsapp"></i> Finalizar Pedido
+                <button id="btn-help-premium" class="theme-toggle" title="Como pedir?">
+                    <i class="fas fa-question-circle"></i>
                 </button>
             </div>
-        </section>
+
+            <div class="categories">
+                <div class="category-pill active">All</div>
+                <div class="category-pill">Lanches</div>
+                <div class="category-pill">Adicionais</div>
+                <div class="category-pill">Porção batata</div>
+                <div class="category-pill">Bebidas</div>
+                <div class="category-pill">Combos</div>
+            </div>
+
+            <div class="menu-grid" id="menu-container">
+                <div class="section-column" id="left-column">
+                    <!-- Conteúdo inserido via JS -->
+                </div>
+                <div class="section-column" id="right-column">
+                    <!-- Conteúdo inserido via JS -->
+                </div>
+            </div>
+        </div>
+
+        <aside class="sidebar-column">
+            <div class="checkout-sticky">
+                <!-- Comanda Section Premium -->
+                <section id="comanda-section-premium" class="comanda-card-premium hidden">
+                    <h3 class="fast-food-font" style="color: var(--primary); font-size: 1.8rem; margin-bottom: 20px;">
+                        <i class="fas fa-shopping-basket"></i> Sua Comanda
+                    </h3>
+                    <div id="comanda-items-premium">
+                        <!-- Itens inseridos via JS -->
+                    </div>
+                </section>
+
+                <!-- Checkout Section Premium -->
+                <section id="checkout-section-premium" class="checkout-premium">
+                    <div class="comanda-card-premium">
+                        <h3 class="fast-food-font" style="color: var(--primary); font-size: 1.8rem; margin-bottom: 20px;">
+                            <i class="fas fa-credit-card"></i> Pagamento
+                        </h3>
+                        
+                        <div class="form-field">
+                            <label>Escolha como pagar:</label>
+                            <div class="payment-methods-premium">
+                                <label class="payment-opt-premium">
+                                    <input type="radio" name="payment" value="pix" checked>
+                                    <span><i class="fab fa-pix"></i> PIX</span>
+                                </label>
+                                <label class="payment-opt-premium">
+                                    <input type="radio" name="payment" value="card">
+                                    <span><i class="fas fa-credit-card"></i> Cartão</span>
+                                </label>
+                                <label class="payment-opt-premium">
+                                    <input type="radio" name="payment" value="cash">
+                                    <span><i class="fas fa-money-bill-wave"></i> Dinheiro</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Detalhes do Cartão Premium -->
+                        <div id="card-container-premium" class="payment-details-premium hidden">
+                            <p style="font-weight: 700; margin-bottom: 10px;">Modalidade:</p>
+                            <div class="radio-group-premium">
+                                <label class="radio-label-premium">
+                                    <input type="radio" name="card-type-premium" value="Crédito" checked>
+                                    <span>Crédito</span>
+                                </label>
+                                <label class="radio-label-premium">
+                                    <input type="radio" name="card-type-premium" value="Débito">
+                                    <span>Débito</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Detalhes do PIX Premium -->
+                        <div id="pix-container-premium" class="payment-details-premium hidden">
+                            <div class="pix-card-premium">
+                                <p style="font-size: 0.8rem; opacity: 0.7;">CHAVE PIX</p>
+                                <p style="font-weight: 800; font-size: 1.1rem; margin-bottom: 15px;">jebas.burguer@contato.com</p>
+                                
+                                <div style="display: flex; gap: 10px;">
+                                    <input type="text" id="pix-copy-paste-premium" readonly style="flex: 1; background: rgba(0,0,0,0.1); border: 1px solid rgba(0,0,0,0.1); color: var(--primary); padding: 10px; border-radius: 8px; font-family: monospace; font-size: 0.8rem;">
+                                    <button type="button" onclick="copyPixCodePremium()" id="btn-copy-pix-premium" class="btn-send-premium" style="padding: 0 15px; font-size: 0.8rem;">COPIAR</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="change-group-premium" class="form-field hidden">
+                            <label for="change-amount">Troco para quanto?</label>
+                            <input type="text" id="change-amount" placeholder="Ex: 50,00" class="input-premium">
+                        </div>
+                    </div>
+
+                    <!-- ETAPA 3: ENTREGA -->
+                    <div class="comanda-card-premium" style="margin-top: 30px;">
+                        <h3 class="fast-food-font" style="color: var(--primary); font-size: 1.8rem; margin-bottom: 20px;">
+                            <i class="fas fa-truck"></i> Entrega
+                        </h3>
+                        
+                        <div class="form-field">
+                            <label for="client-name">Seu Nome</label>
+                            <input type="text" id="client-name" placeholder="Ex: Rodrigo" required class="input-premium">
+                        </div>
+
+                        <div class="form-field">
+                            <label for="address">Onde entregamos?</label>
+                            <input type="text" id="address" placeholder="Rua, número, bairro..." required class="input-premium">
+                        </div>
+
+                        <div class="form-field">
+                            <label for="observations">Observações</label>
+                            <textarea id="observations" rows="2" placeholder="Ex: Próximo à padaria..." class="input-premium"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="summary-premium">
+                        <div class="total-premium">Total: <span id="total-price-premium">R$ 0,00</span></div>
+                        <button id="btn-send-premium" class="btn-send-premium" onclick="sendOrder()">
+                            <i class="fab fa-whatsapp"></i> Finalizar Pedido Premium
+                        </button>
+                    </div>
+                </section>
+            </div>
+        </aside>
     </main>
 
     <!-- Imagem Decorativa de Hambúrguer -->
@@ -223,6 +238,22 @@
     </div>
 
     <!-- Script -->
+    <!-- Modal Premium -->
+    <div id="product-modal" class="modal-premium">
+        <div class="modal-content-premium">
+            <span class="close-modal">&times;</span>
+            <div id="modal-body"></div>
+            <div class="modal-footer-premium">
+                <div class="qty-selector-premium">
+                    <button onclick="adjustModalQty(-1)">-</button>
+                    <span id="modal-qty">1</span>
+                    <button onclick="adjustModalQty(1)">+</button>
+                </div>
+                <button id="add-to-cart-modal" class="btn-premium">ADICIONAR À EXPERIÊNCIA</button>
+            </div>
+        </div>
+    </div>
+
     <script src="menu-premium.js"></script>
 </body>
 </html>

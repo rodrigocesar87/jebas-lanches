@@ -65,7 +65,7 @@ const MENU_DATA = [
             { name: "Combo 4 X-Tudo", desc: "4 X-Tudo + batata + refri", price: 90 },
             { name: "Combo 2 X-Salada", desc: "2 X-Salada + batata + refri", price: 35 },
             { name: "Combo 2 X-Tudo", desc: "2 X-Tudo + batata + refri", price: 50 },
-            { name: "Combo 1 X-Salada", desc: "1 X-Salada + batata + refri", price: 20 },
+            { name: "Combo 1 X-Salada", desc: "1 X-Salada + batata + refri", price: 25 },
             { name: "Combo 1 X-Tudo", desc: "1 X-Tudo + batata + refri", price: 30 }
         ]
     }
@@ -101,21 +101,35 @@ function closeGuide() {
 }
 
 function renderCategories() {
-    const nav = document.getElementById('categories-nav');
+    const nav = document.getElementById('category-nav');
+    nav.innerHTML = '';
     MENU_DATA.forEach((cat, index) => {
         const btn = document.createElement('button');
-        btn.className = `category-btn ${index === 0 ? 'active' : ''}`;
-        btn.textContent = cat.category;
-        btn.onclick = () => scrollToCategory(cat.category, btn);
+        btn.innerHTML = `${getCategoryIcon(cat.category)} <span>${cat.category}</span>`;
+        btn.onclick = () => scrollToCategory(cat.category.toLowerCase());
         nav.appendChild(btn);
     });
 }
 
-function scrollToCategory(catId, btn) {
-    document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
+function getCategoryIcon(cat) {
+    const icons = {
+        "Lanches": "🍔",
+        "Porção batata": "🍟",
+        "Bebidas": "🥤",
+        "Combos": "📦",
+        "Adicionais": "➕"
+    };
+    return icons[cat] || "🍴";
+}
+
+function scrollToCategory(catId) {
     const el = document.getElementById(`cat-${catId}`);
-    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (el) {
+        window.scrollTo({
+            top: el.offsetTop - 100,
+            behavior: 'smooth'
+        });
+    }
 }
 
 function setupPaymentLogic() {
@@ -127,31 +141,51 @@ function setupPaymentLogic() {
     paymentRadios.forEach(radio => {
         radio.addEventListener('change', () => {
             const method = radio.value;
-            
+
             // Esconde todos inicialmente (usando a classe hidden)
             changeContainer.classList.add('hidden');
             cardContainer.classList.add('hidden');
             pixContainer.classList.add('hidden');
 
-            if (method === 'cash') { // No HTML o valor é 'cash'
+            if (method === 'cash') {
                 changeContainer.classList.remove('hidden');
             } else if (method === 'card') {
                 cardContainer.classList.remove('hidden');
             } else if (method === 'pix') {
                 pixContainer.classList.remove('hidden');
-                updatePixDetails();
             }
         });
     });
 }
 
-function renderMenu() {
+function copyPixCode() {
+    const pixKey = "jebas.burguer@contato.com";
+    navigator.clipboard.writeText(pixKey).then(() => {
+        const btn = document.getElementById('btn-copy-pix');
+        btn.textContent = "Copiado! ✅";
+        btn.style.background = "#27ae60";
+        setTimeout(() => {
+            btn.textContent = "Copiar Chave PIX";
+            btn.style.background = "";
+        }, 2000);
+    });
+}
+
+function renderMenu(filter = '') {
     const container = document.getElementById('menu-container');
-    container.innerHTML = ''; // Limpa antes de renderizar
+    container.innerHTML = '';
 
     MENU_DATA.forEach(cat => {
+        // Filtrar itens se houver busca
+        const filteredItems = cat.items.filter(item =>
+            item.name.toLowerCase().includes(filter.toLowerCase()) ||
+            item.desc.toLowerCase().includes(filter.toLowerCase())
+        );
+
+        if (filteredItems.length === 0) return;
+
         const section = document.createElement('section');
-        section.id = `cat-${cat.category}`;
+        section.id = `cat-${cat.category.toLowerCase()}`;
         section.className = 'category-section';
 
         const title = document.createElement('h2');
@@ -159,23 +193,13 @@ function renderMenu() {
         title.textContent = cat.category;
         section.appendChild(title);
 
-        cat.items.forEach(item => {
+        const grid = document.createElement('div');
+        grid.className = 'menu-grid';
+
+        filteredItems.forEach(item => {
             const card = document.createElement('div');
             card.className = 'menu-item';
-            
-            let controlsHtml = '';
-            if (!cat.isInformative) {
-                const count = cart.filter(idx => idx.name === item.name).length;
-                controlsHtml = `
-                    <div class="item-controls">
-                        <button onclick="changeQty('${item.name}', -1, ${item.price})">-</button>
-                        <input type="number" id="qty-${item.name}" value="${count}" min="0" readonly>
-                        <button onclick="changeQty('${item.name}', 1, ${item.price})">+</button>
-                    </div>
-                `;
-            } else {
-                controlsHtml = `<span class="informative-price">Consultar valor</span>`;
-            }
+            card.onclick = () => openProductModal(item, cat);
 
             card.innerHTML = `
                 <div class="item-img">
@@ -184,16 +208,112 @@ function renderMenu() {
                 <div class="item-info">
                     <h3>${item.name}</h3>
                     <p class="description">${item.desc}</p>
-                    <p class="price">R$ ${item.price.toFixed(2).replace('.', ',')}</p>
+                    <span class="item-price-tag">R$ ${item.price.toFixed(2).replace('.', ',')}</span>
                 </div>
-                ${controlsHtml}
             `;
-            section.appendChild(card);
+            grid.appendChild(card);
         });
 
+        section.appendChild(grid);
         container.appendChild(section);
     });
 }
+
+// Lógica de Busca
+document.getElementById('menu-search').addEventListener('input', (e) => {
+    renderMenu(e.target.value);
+});
+
+// Lógica do Modal
+let currentModalItem = null;
+let currentModalCategory = null;
+let modalQty = 1;
+
+function openProductModal(item, cat) {
+    currentModalItem = item;
+    currentModalCategory = cat;
+    modalQty = 1;
+    updateModalDisplay();
+
+    document.getElementById('product-modal').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+}
+
+function updateModalDisplay() {
+    const body = document.getElementById('modal-body');
+    const addonsCategory = MENU_DATA.find(c => c.category === "Adicionais");
+    const availableAddons = addonsCategory ? addonsCategory.items : [];
+
+    // Verifica se é um lanche para mostrar adicionais
+    const isBurger = currentModalCategory.category === "Lanches";
+
+    body.innerHTML = `
+        <img src="${currentModalCategory.image}" class="modal-header-img" alt="${currentModalItem.name}">
+        <div class="modal-info">
+            <h2>${currentModalItem.name}</h2>
+            <p class="description">${currentModalItem.desc}</p>
+            
+            ${isBurger ? `
+                <div class="modal-addons">
+                    <h3 style="margin-bottom: 15px; font-family: 'Oswald';">Adicionais</h3>
+                    <div class="addons-selection">
+                        ${availableAddons.map(addon => `
+                            <label class="addon-checkbox">
+                                <input type="checkbox" name="modal-addon" data-name="${addon.name}" data-price="${addon.price}">
+                                ${addon.name} (+R$ ${addon.price.toFixed(2)})
+                            </label>
+                        `).join('')}
+                    </div>
+                </div>
+            ` : ''}
+
+            <div style="margin-top: 20px;">
+                <h3 style="margin-bottom: 10px; font-family: 'Oswald';">Observações</h3>
+                <textarea id="modal-obs" class="comanda-obs" placeholder="Ex: Sem cebola, trocar por cheddar..."></textarea>
+            </div>
+        </div>
+    `;
+
+    document.getElementById('modal-qty').textContent = modalQty;
+}
+
+function adjustModalQty(delta) {
+    modalQty = Math.max(1, modalQty + delta);
+    document.getElementById('modal-qty').textContent = modalQty;
+}
+
+function closeModal() {
+    document.getElementById('product-modal').style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
+document.querySelector('.close-modal').onclick = closeModal;
+
+document.getElementById('add-to-cart-modal').onclick = () => {
+    const selectedAddons = [];
+    document.querySelectorAll('input[name="modal-addon"]:checked').forEach(input => {
+        selectedAddons.push({
+            name: input.dataset.name,
+            price: parseFloat(input.dataset.price)
+        });
+    });
+
+    const obs = document.getElementById('modal-obs').value;
+
+    for (let i = 0; i < modalQty; i++) {
+        cart.push({
+            id: Date.now() + Math.random(),
+            name: currentModalItem.name,
+            price: currentModalItem.price,
+            addons: [...selectedAddons],
+            obs: obs
+        });
+    }
+
+    closeModal();
+    renderComanda();
+    calculateTotal();
+};
 
 function changeQty(name, delta, price) {
     if (delta > 0) {
@@ -243,77 +363,34 @@ function renderComanda() {
     cart.forEach((item, index) => {
         const itemCard = document.createElement('div');
         itemCard.className = 'comanda-item';
-        
-        // Calcula subtotal do item (Base + Adicionais)
+
         let addonsTotal = 0;
         item.addons.forEach(a => addonsTotal += a.price);
         let itemSubtotal = item.price + addonsTotal;
 
-        // Mostra opcionais apenas para lanches
-        const catOfItem = MENU_DATA.find(c => c.items.some(i => i.name === item.name));
-        const showAddons = catOfItem && catOfItem.category === "Lanches";
-
-        let addonsHtml = '';
-        if (showAddons && availableAddons.length > 0) {
-            addonsHtml = `
-                <div style="margin: 10px 0;">
-                    <button class="btn-toggle-addons" onclick="toggleExpand(${index})">
-                        <i class="fas ${item.expanded ? 'fa-chevron-up' : 'fa-chevron-down'}"></i>
-                        ${item.expanded ? 'Recolher Adicionais' : 'Personalizar / Adicionais'}
-                    </button>
-                </div>
-                <div class="addons-selection ${item.expanded ? '' : 'collapsed'}">
-                    ${availableAddons.map(addon => `
-                        <label class="addon-checkbox">
-                            <input type="checkbox" onchange="toggleAddon(${index}, '${addon.name}', ${addon.price})" 
-                                ${item.addons.some(a => a.name === addon.name) ? 'checked' : ''}>
-                            ${addon.name} (+R$ ${addon.price.toFixed(2)})
-                        </label>
-                    `).join('')}
-                </div>
-            `;
-        }
-
         itemCard.innerHTML = `
             <div class="comanda-item-header">
                 <div>
-                    <h3>#${index + 1} - ${item.name}</h3>
+                    <h3>${item.name}</h3>
                     <div class="price-breakdown">
-                        R$ ${item.price.toFixed(2).replace('.', ',')} 
-                        ${addonsTotal > 0 ? `<span class="addons-plus">+ R$ ${addonsTotal.toFixed(2).replace('.', ',')} (Adicionais)</span>` : ''}
+                        <span class="base-price">R$ ${item.price.toFixed(2).replace('.', ',')}</span>
+                        ${item.addons.length > 0 ? `<span class="addons-list">+ ${item.addons.map(a => a.name).join(', ')}</span>` : ''}
                     </div>
                 </div>
-                <div style="display: flex; align-items: center; gap: 15px;">
-                    <span class="item-subtotal">R$ ${itemSubtotal.toFixed(2).replace('.', ',')}</span>
-                    <button class="btn-remove" onclick="removeItemFromComanda(${index})"><i class="fas fa-trash"></i></button>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span class="item-subtotal-display">R$ ${itemSubtotal.toFixed(2).replace('.', ',')}</span>
+                    <button class="btn-remove" onclick="removeItemFromComanda(${index})" title="Remover item">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
             </div>
-            ${addonsHtml}
-            <textarea class="comanda-obs" placeholder="Alguma observação para este item? (Ex: Sem cebola, trocar por cheddar...)" 
-                oninput="updateItemObs(${index}, this.value)">${item.obs}</textarea>
+            ${item.obs ? `<div class="item-obs-display"><strong>Obs:</strong> ${item.obs}</div>` : ''}
         `;
         comandaItems.appendChild(itemCard);
     });
 }
 
-function toggleExpand(index) {
-    cart[index].expanded = !cart[index].expanded;
-    renderComanda();
-}
-
-function toggleAddon(index, addonName, addonPrice) {
-    const item = cart[index];
-    const addonIndex = item.addons.findIndex(a => a.name === addonName);
-    
-    if (addonIndex === -1) {
-        item.addons.push({ name: addonName, price: addonPrice });
-    } else {
-        item.addons.splice(addonIndex, 1);
-    }
-    
-    renderComanda(); 
-    calculateTotal();
-}
+/* removido - substituído pelo modal */
 
 function updateItemObs(index, value) {
     cart[index].obs = value;
@@ -322,13 +399,13 @@ function updateItemObs(index, value) {
 function removeItemFromComanda(index) {
     const itemName = cart[index].name;
     cart.splice(index, 1);
-    
+
     // Sincroniza com o input do menu
     const input = document.getElementById(`qty-${itemName}`);
     if (input) {
         input.value = cart.filter(idx => idx.name === itemName).length;
     }
-    
+
     renderComanda();
     calculateTotal();
 }
@@ -386,27 +463,27 @@ function sendOrder() {
     if (!clientName) { alert("Informe seu nome."); return; }
     if (!address) { alert("Informe o endereço."); return; }
 
-    let message = "🛒 *NOVO PEDIDO - JÊBAS LANCHES*\n";
+    let message = "*NOVO PEDIDO - JÊBAS LANCHES*\n";
     message += "----------------------------------------\n";
     message += `*CLIENTE:* ${clientName}\n`;
     message += "----------------------------------------\n\n";
-    
+
     let total = 0;
     cart.forEach((item, index) => {
         let itemTotal = item.price;
         message += `*#${index + 1} - ${item.name}* (R$ ${item.price.toFixed(2)})\n`;
-        
+
         if (item.addons.length > 0) {
             message += `  _Adicionais:_ ${item.addons.map(a => {
                 itemTotal += a.price;
                 return `${a.name} (+R$ ${a.price})`;
             }).join(', ')}\n`;
         }
-        
+
         if (item.obs) {
             message += `  _Obs:_ ${item.obs}\n`;
         }
-        
+
         message += `  *Subtotal:* R$ ${itemTotal.toFixed(2).replace('.', ',')}\n\n`;
         total += itemTotal;
     });
@@ -417,7 +494,7 @@ function sendOrder() {
 
     message += "*💳 PAGAMENTO:*\n";
     message += `- ${paymentDetails}\n`;
-    
+
     message += "\n*📍 ENTREGA:*\n";
     message += `${address}\n`;
     if (deliveryObs) message += `_Obs Entrega:_ ${deliveryObs}\n`;

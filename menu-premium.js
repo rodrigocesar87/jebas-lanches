@@ -80,9 +80,9 @@ let cart = [];
 
 document.addEventListener('DOMContentLoaded', () => {
     initTheme();
+    renderCategories();
     renderMenu();
-    setupSearch();
-    setupFilters();
+    setupCartLogic();
     setupPaymentLogic();
     checkFirstVisitPremium();
     document.getElementById('btn-help-premium').onclick = openGuidePremium;
@@ -120,12 +120,41 @@ function initTheme() {
     };
 }
 
-function updateThemeIcon(theme) {
-    const icon = document.querySelector('#theme-toggle i');
-    icon.className = theme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+function renderCategories() {
+    const nav = document.getElementById('category-nav-premium');
+    nav.innerHTML = '';
+    MENU_DATA.forEach(cat => {
+        const btn = document.createElement('button');
+        btn.innerHTML = getCategoryIcon(cat.category) + ' ' + cat.category;
+        btn.onclick = () => scrollToCategory(cat.category.toLowerCase());
+        nav.appendChild(btn);
+    });
 }
 
-function renderMenu(filterTerm = "", categoryFilter = "All") {
+function getCategoryIcon(cat) {
+    const icons = {
+        "Lanches": "🍔",
+        "Porção batata": "🍟",
+        "Bebidas": "🥤",
+        "Combos": "📦",
+        "Adicionais": "➕"
+    };
+    return icons[cat] || "🍴";
+}
+
+function scrollToCategory(catId) {
+    const sections = document.querySelectorAll('.section-title');
+    sections.forEach(s => {
+        if (s.textContent.toLowerCase().includes(catId)) {
+            window.scrollTo({
+                top: s.offsetTop - 120,
+                behavior: 'smooth'
+            });
+        }
+    });
+}
+
+function renderMenu(filter = '') {
     const leftCol = document.getElementById('left-column');
     const rightCol = document.getElementById('right-column');
     
@@ -133,54 +162,44 @@ function renderMenu(filterTerm = "", categoryFilter = "All") {
     rightCol.innerHTML = '';
 
     MENU_DATA.forEach(cat => {
-        if (categoryFilter !== "All" && cat.category !== categoryFilter) return;
-
         const filteredItems = cat.items.filter(item => 
-            item.name.toLowerCase().includes(filterTerm.toLowerCase()) || 
-            item.desc.toLowerCase().includes(filterTerm.toLowerCase())
+            item.name.toLowerCase().includes(filter.toLowerCase()) || 
+            item.desc.toLowerCase().includes(filter.toLowerCase())
         );
 
         if (filteredItems.length === 0) return;
 
         const section = document.createElement('div');
-        section.className = 'menu-section';
+        section.className = 'menu-section-premium';
         section.innerHTML = `<h2 class="section-title fast-food-font">${cat.category}</h2>`;
 
+        const grid = document.createElement('div');
+        grid.className = 'menu-grid-v2';
+
         filteredItems.forEach(item => {
-            const count = cart.filter(i => i.name === item.name).length;
             const card = document.createElement('div');
             card.className = 'menu-item';
+            card.onclick = () => openProductModal(item, cat);
             
-            let controlsHtml = '';
-            if (!cat.isInformative) {
-                controlsHtml = `
-                    <div class="item-controls-premium">
-                        <button onclick="changeQty('${item.name}', -1, ${item.price})">-</button>
-                        <input type="number" id="qty-${item.name}" value="${count}" min="0" readonly>
-                        <button onclick="changeQty('${item.name}', 1, ${item.price})">+</button>
-                    </div>
-                `;
-            } else {
-                controlsHtml = `<span class="informative-note">Consultar na Comanda</span>`;
-            }
+            // Logica v3.0 para imagem: se item tem imagem usa ela, senão usa a da categoria
+            const itemImage = item.image || cat.image;
 
             card.innerHTML = `
                 <div class="item-img-premium">
-                    <img src="${cat.image}" alt="${item.name}">
+                    <img src="${itemImage}" alt="${item.name}" loading="lazy" style="width:100%; height:100%; object-fit:cover;">
                 </div>
                 <div class="item-content-premium">
                     <div class="item-header">
                         <h3>${item.name}</h3>
-                        <span class="item-price">R$ ${item.price.toFixed(2).replace('.', ',')}</span>
                     </div>
                     <p class="item-desc">${item.desc}</p>
-                    <div class="item-footer">
-                        ${controlsHtml}
-                    </div>
+                    <span class="item-price">R$ ${item.price.toFixed(2).replace('.', ',')}</span>
                 </div>
             `;
-            section.appendChild(card);
+            grid.appendChild(card);
         });
+
+        section.appendChild(grid);
 
         if (cat.column === 'left') {
             leftCol.appendChild(section);
@@ -189,12 +208,107 @@ function renderMenu(filterTerm = "", categoryFilter = "All") {
         }
     });
 
+    // Animação de entrada
     setTimeout(() => {
         document.querySelectorAll('.menu-item').forEach((item, index) => {
             setTimeout(() => item.classList.add('visible'), index * 30);
         });
     }, 50);
 }
+
+// Lógica de Busca Premium
+document.getElementById('menu-search').addEventListener('input', (e) => {
+    renderMenu(e.target.value);
+});
+
+// Lógica do Modal Premium
+let currentModalItem = null;
+let currentModalCategory = null;
+let modalQty = 1;
+
+function openProductModal(item, cat) {
+    currentModalItem = item;
+    currentModalCategory = cat;
+    modalQty = 1;
+    updateModalDisplay();
+    
+    document.getElementById('product-modal').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+}
+
+function updateModalDisplay() {
+    const body = document.getElementById('modal-body');
+    const addonsCategory = MENU_DATA.find(c => c.category === "Adicionais");
+    const availableAddons = addonsCategory ? addonsCategory.items : [];
+    const isBurger = currentModalCategory.category === "Lanches";
+
+    body.innerHTML = `
+        <img src="${currentModalCategory.image}" class="modal-header-img" alt="${currentModalItem.name}">
+        <div class="modal-info">
+            <h2 class="fast-food-font" style="font-size: 2.5rem; color: var(--primary);">${currentModalItem.name}</h2>
+            <p class="description" style="font-size: 1.1rem; opacity: 0.8; margin-bottom: 25px;">${currentModalItem.desc}</p>
+            
+            ${isBurger ? `
+                <div class="modal-addons-premium">
+                    <h3 class="fast-food-font" style="font-size: 1.5rem; margin-bottom: 15px; border-bottom: 2px solid var(--primary); display: inline-block;">Adicionais Premium</h3>
+                    <div class="addons-selection-premium">
+                        ${availableAddons.map(addon => `
+                            <label class="addon-checkbox-premium">
+                                <input type="checkbox" name="modal-addon" data-name="${addon.name}" data-price="${addon.price}">
+                                <span>${addon.name} <small>(+R$ ${addon.price.toFixed(2)})</small></span>
+                            </label>
+                        `).join('')}
+                    </div>
+                </div>
+            ` : ''}
+
+            <div style="margin-top: 30px;">
+                <h3 class="fast-food-font" style="font-size: 1.5rem; margin-bottom: 10px;">Toque Especial (Obs)</h3>
+                <textarea id="modal-obs" class="comanda-obs-premium" placeholder="Ex: Sem cebola, trocar por cheddar..."></textarea>
+            </div>
+        </div>
+    `;
+
+    document.getElementById('modal-qty').textContent = modalQty;
+}
+
+function adjustModalQty(delta) {
+    modalQty = Math.max(1, modalQty + delta);
+    document.getElementById('modal-qty').textContent = modalQty;
+}
+
+function closeModal() {
+    document.getElementById('product-modal').style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
+document.querySelector('.close-modal').onclick = closeModal;
+
+document.getElementById('add-to-cart-modal').onclick = () => {
+    const selectedAddons = [];
+    document.querySelectorAll('input[name="modal-addon"]:checked').forEach(input => {
+        selectedAddons.push({
+            name: input.dataset.name,
+            price: parseFloat(input.dataset.price)
+        });
+    });
+
+    const obs = document.getElementById('modal-obs').value;
+
+    for (let i = 0; i < modalQty; i++) {
+        cart.push({
+            id: Date.now() + Math.random(),
+            name: currentModalItem.name,
+            price: currentModalItem.price,
+            addons: [...selectedAddons],
+            obs: obs
+        });
+    }
+
+    closeModal();
+    renderComanda();
+    calculateTotal();
+};
 
 function changeQty(name, delta, price) {
     if (delta > 0) {
@@ -231,59 +345,32 @@ function renderComanda() {
     comandaSection.classList.remove('hidden');
     comandaItems.innerHTML = '';
 
-    const addonsCategory = MENU_DATA.find(c => c.category === "Adicionais");
-    const availableAddons = addonsCategory ? addonsCategory.items : [];
-
     cart.forEach((item, index) => {
         const itemCard = document.createElement('div');
         itemCard.className = 'comanda-item-premium';
+        itemCard.style.padding = '15px';
+        itemCard.style.borderBottom = '1px dashed #eee';
+        itemCard.style.marginBottom = '10px';
         
-        // Calcula subtotal do item
         let addonsTotal = 0;
         item.addons.forEach(a => addonsTotal += a.price);
         let itemSubtotal = item.price + addonsTotal;
 
-        const catOfItem = MENU_DATA.find(c => c.items.some(i => i.name === item.name));
-        const showAddons = catOfItem && catOfItem.category === "Lanches";
-
-        let addonsHtml = '';
-        if (showAddons && availableAddons.length > 0) {
-            addonsHtml = `
-                <div style="margin: 10px 0;">
-                    <button class="btn-toggle-premium" onclick="toggleExpand(${index})">
-                        <i class="fas ${item.expanded ? 'fa-chevron-up' : 'fa-chevron-down'}"></i>
-                        ${item.expanded ? 'Recolher Adicionais' : 'Personalizar / Adicionais'}
-                    </button>
-                </div>
-                <div class="addons-selection-premium ${item.expanded ? '' : 'collapsed'}">
-                    ${availableAddons.map(addon => `
-                        <label class="addon-checkbox-premium">
-                            <input type="checkbox" onchange="toggleAddon(${index}, '${addon.name}', ${addon.price})" 
-                                ${item.addons.some(a => a.name === addon.name) ? 'checked' : ''}>
-                            ${addon.name} (+R$ ${addon.price.toFixed(2)})
-                        </label>
-                    `).join('')}
-                </div>
-            `;
-        }
-
         itemCard.innerHTML = `
-            <div class="comanda-item-header-premium">
-                <div>
-                    <h3>#${index + 1} - ${item.name}</h3>
-                    <div class="price-breakdown-premium">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div style="flex: 1;">
+                    <h4 style="margin: 0; color: #1a1a1a;">${item.name}</h4>
+                    <div style="font-size: 0.85rem; color: #666; margin-top: 4px;">
                         R$ ${item.price.toFixed(2).replace('.', ',')} 
-                        ${addonsTotal > 0 ? `<span class="addons-plus-premium">+ R$ ${addonsTotal.toFixed(2).replace('.', ',')} (Adicionais)</span>` : ''}
+                        ${item.addons.length > 0 ? `<br><small style="color: var(--primary);">+ ${item.addons.map(a => a.name).join(', ')}</small>` : ''}
+                        ${item.obs ? `<br><small style="font-style: italic;">Obs: ${item.obs}</small>` : ''}
                     </div>
                 </div>
-                <div style="display: flex; align-items: center; gap: 15px;">
-                    <span class="item-subtotal-premium">R$ ${itemSubtotal.toFixed(2).replace('.', ',')}</span>
-                    <button class="btn-remove-premium" onclick="removeItemFromComanda(${index})">Remover</button>
+                <div style="text-align: right; margin-left: 10px;">
+                    <div style="font-weight: 700; color: var(--primary);">R$ ${itemSubtotal.toFixed(2).replace('.', ',')}</div>
+                    <button onclick="removeItemFromComanda(${index})" style="background: none; border: none; color: #ff4d4d; font-size: 0.75rem; cursor: pointer; padding: 5px 0; text-transform: uppercase; font-weight: 700;">Remover</button>
                 </div>
             </div>
-            ${addonsHtml}
-            <textarea class="comanda-obs-premium" placeholder="Obs: Sem cebola, trocar queijo..." 
-                oninput="updateItemObs(${index}, this.value)">${item.obs}</textarea>
         `;
         comandaItems.appendChild(itemCard);
     });
@@ -321,15 +408,45 @@ function removeItemFromComanda(index) {
     calculateTotal();
 }
 
-function calculateTotal() {
-    let total = 0;
-    cart.forEach(item => {
-        total += item.price;
-        item.addons.forEach(a => total += a.price);
-    });
+function copyPixCodePremium() {
+    const pixInput = document.getElementById('pix-copy-paste-premium');
+    const btn = document.getElementById('btn-copy-pix-premium');
+    
+    pixInput.value = "jebas.burguer@contato.com"; // Simplificado para exemplo, ideal seria chave real
+    pixInput.select();
+    document.execCommand('copy');
+    
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-check"></i> COPIADO!';
+    btn.style.background = '#28a745';
+    
+    setTimeout(() => {
+        btn.innerHTML = originalText;
+        btn.style.background = 'var(--primary)';
+    }, 2000);
+}
 
-    const totalEl = document.getElementById('total-price-premium');
-    if (totalEl) totalEl.textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
+function calculateTotal() {
+    let subtotal = 0;
+    cart.forEach(item => {
+        subtotal += item.price;
+        item.addons.forEach(a => subtotal += a.price);
+    });
+    
+    const totalElement = document.getElementById('total-price-premium');
+    if (totalElement) totalElement.textContent = `R$ ${subtotal.toFixed(2).replace('.', ',')}`;
+    
+    const mobileTotal = document.getElementById('mobile-cart-total-premium');
+    if (mobileTotal) mobileTotal.textContent = `R$ ${subtotal.toFixed(2).replace('.', ',')}`;
+    
+    const mobileCount = document.getElementById('mobile-cart-count-premium');
+    if (mobileCount) mobileCount.textContent = `${cart.length} ${cart.length === 1 ? 'item' : 'itens'}`;
+    
+    const mobileBar = document.getElementById('mobile-cart-bar-premium');
+    if (mobileBar) {
+        if (cart.length > 0) mobileBar.classList.remove('hidden');
+        else mobileBar.classList.add('hidden');
+    }
 
     const btnSend = document.getElementById('btn-send-premium');
     if (cart.length > 0) {
